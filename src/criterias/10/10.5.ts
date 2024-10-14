@@ -42,9 +42,9 @@ class Criteria10_5 extends Criteria {
         }
     }
 
-    _execute(options?: ExecuteOptions): CriteriaResult | null {
+    _execute(options?: ExecuteOptions): Criteria10_5Result | null {
         if (!options?.noLog) {
-            console.debug("%cDémarrage du scan (l'opération peut prendre un moment)", consoleUtils.detailsFormatting)
+            console.debug(`%c[${ this.title }] Démarrage du scan (l'opération peut prendre un moment)`, consoleUtils.detailsFormatting)
         }
 
         const anomalies: Anomaly[] = []
@@ -53,7 +53,7 @@ class Criteria10_5 extends Criteria {
             if (!cssInspection.areSame) {
                 const style = getComputedStyle(element)
                 anomalies.push({
-                    text: element.textContent,
+                    text: element.textContent ?? "",
                     cssRulesStyle: {
                         color: cssInspection.color,
                         backgroundColor: cssInspection.backgroundColor,
@@ -113,14 +113,14 @@ class Criteria10_5 extends Criteria {
         const allCssDeclarations = this.getAllCssDeclarations(element)
         let color = element.style.color
         let backgroundColor = element.style.backgroundColor
-        allCssDeclarations.forEach(declaration => {
-            color = declaration.style.color || color
-            backgroundColor = declaration.style.backgroundColor || backgroundColor
+        allCssDeclarations.forEach((declaration) => {
+            color = (declaration as CSSStyleRule).style.color || color
+            backgroundColor = (declaration as CSSStyleRule).style.backgroundColor || backgroundColor
         })
 
         // Either none or both of them should be declared
         return {
-            areSame: !(!!color ^ !!backgroundColor),
+            areSame: !!color === !!backgroundColor,
             color,
             backgroundColor
         }
